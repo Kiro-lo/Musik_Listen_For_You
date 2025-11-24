@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicChart - Топ музыкальных треков</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --accent: #fd79a8;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #2d1b69);
+            color: var(--light);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 20px 5%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .chart-item {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .chart-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-item.top-5 {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 20px rgba(253, 121, 168, 0.3);
+        }
+
+        .position {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            z-index: 2;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .position.top-3 {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+        }
+
+        .position.top-5 {
+            background: var(--accent);
+        }
+
+        .album-cover {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .album-cover::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+        }
+
+        .vinyl {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #2d3436, #000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            animation: rotate 20s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .chart-item:hover .vinyl {
+            animation-play-state: running;
+        }
+
+        .vinyl::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--accent);
+            z-index: 1;
+        }
+
+        .vinyl::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--light);
+            z-index: 2;
+        }
+
+        .track-info {
+            padding: 20px;
+        }
+
+        .track-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .play-btn:hover {
+            background: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .play-btn i {
+            font-size: 0.8rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">MusicChart</div>
+    </header>
+
+    <div class="container">
+        <h1>Топ музыкальных треков</h1>
+        
+        <div class="chart-container">
+            <!-- Топ-1 -->
+            <div class="chart-item">
+                <div class="position top-3">1</div>
+                <div class="album-cover">
+                    <div class="vinyl"></div>
+                </div>
+                <div class="track-info">
+                    <div class="track-title">Flowers</div>
+                    <div class="track-artist">Miley Cyrus</div>
+                    <button class="play-btn"><i>▶</i> Слушать</button>
+                </div>
+            </div>
+
+            <!-- Топ-2 -->
+            <div class="chart-item">
+                <div class="position top-3">2</div>
+                <div class="album-cover">
+                    <div class="vinyl"></div>
+                </div>
+                <div class="track-info">
+                    <div class="track-title">Kill Bill</div>
+                    <div class="track-artist">SZA</div>
+                    <button class="play-btn"><i>▶</i> Слушать</button>
+                </div>
+            </div>
+
+            <!-- Топ-3 -->
+            <div class="chart-item">
+                <div class="position top-3">3</div>
+                <div class="album-cover">
+                    <div class="vinyl"></div>
+                </div>
+                <div class="track-info">
+                    <div class="track-title">As It Was</div>
+                    <div class="track-artist">Harry Styles</div>
+                    <button class="play-btn"><i>▶</i> Слушать</button>
+                </div>
+            </div>
+
+            <!-- Топ-4 -->
+            <div class="chart-item">
+                <div class="position">4</div>
+                <div class="album-cover">
+                    <div class="vinyl"></div>
+                </div>
+                <div class="track-info">
+                    <div class="track-title">Creepin'</div>
+                    <div class="track-artist">Metro Boomin, The Weeknd, 21 Savage</div>
+                    <button class="play-btn"><i>▶</i> Слушать</button>
+                </div>
+            </div>
+
+            <!-- Топ-5 -->
+            <div class="chart-item top-5">
+                <div class="position top-5">5</div>
+                <div class="album-cover">
+                    <div class="vinyl"></div>
+                </div>
+                <div class="track-info">
+                    <div class="track-title">Pioner Kosteloi</div>
+                    <div class="track-artist">15Ears</div>
+                    <button class="play-btn"><i>▶</i> Слушать</button>
+                </div>
+            </div>
+
+            <!-- Топ-6 -->
+            <div class="chart-item">
+                <div class="position">6</div>
+                <div class="album-cover">
+                    <div class="vinyl"></div>
+                </div>
+                <div class="track-info">
+                    <div class="track-title">Unholy</div>
+                    <div class="track-artist">Sam Smith, Kim Petras</div>
+                    <button class="play-btn"><i>▶</i> Слушать</button>
+                </div>
+            </div>
+
+            <!-- Топ-7 -->
+            <div class="chart-item">
+                <div class="position">7</div>
+                <div class="album-cover">
+                    <div class="vinyl"></div>
+                </div>
+                <div class="track-info">
+                    <div class="track-title">Anti-Hero</div>
+                    <div class="track-artist">Taylor Swift</div>
+                    <button class="play-btn"><i>▶</i> Слушать</button>
+                </div>
+            </div>
+
+            <!-- Топ-8 -->
+            <div class="chart-item">
+                <div class="position">8</div>
+                <div class="album-cover">
+                    <div class="vinyl"></div>
+                </div>
+                <div class="track-info">
+                    <div class="track-title">Calm Down</div>
+                    <div class="track-artist">Rema, Selena Gomez</div>
+                    <button class="play-btn"><i>▶</i> Слушать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2023 MusicChart. Все права защищены.</p>
+    </footer>
+
+    <script>
+        // Добавляем интерактивность кнопкам воспроизведения
+        document.querySelectorAll('.play-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const trackTitle = this.parentElement.querySelector('.track-title').textContent;
+                const artist = this.parentElement.querySelector('.track-artist').textContent;
+                
+                // В реальном приложении здесь был бы код для воспроизведения музыки
+                alert(`Воспроизведение: ${trackTitle} - ${artist}`);
+                
+                // Анимация нажатия
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>
